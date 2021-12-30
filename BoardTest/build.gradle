@@ -13,7 +13,6 @@ repositories {
 
 dependencies {
     implementation 'junit:junit:4.13.1'
-    implementation 'junit:junit:4.13.1'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
@@ -39,6 +38,10 @@ dependencies {
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
     // javax.servlet.jsp.jstl.core.config Class not found error 시 추가
     implementation 'javax.servlet:jstl:1.2'
+//    object to json or xml convert
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.1'
+    implementation 'com.google.code.gson:gson:2.8.9'
 //    etc
     implementation group : 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.32'
 }
