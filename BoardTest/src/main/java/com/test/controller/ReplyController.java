@@ -1,11 +1,10 @@
 package com.test.controller;
 
 import com.test.domain.Criteria;
+import com.test.domain.ReplyPageDTO;
 import com.test.domain.ReplyVO;
 import com.test.service.ReplyService;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.log4j.Log4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,13 +33,13 @@ public class ReplyController {
     }
 
     @GetMapping(value = "/pages/{bno}/{page}" , produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<ReplyVO>> getList(@PathVariable("page") String page, @PathVariable("bno") Long bno){
+    public ResponseEntity<ReplyPageDTO> getList(@PathVariable("page") String page, @PathVariable("bno") Long bno){
         //.json이면 json으로 return하게 설정
         Criteria cri;
         HttpHeaders responseHeaders = new HttpHeaders();
 
-        if(page.length() > 1){
-            int tmp = Integer.parseInt(page.substring(0,1));
+        if(page.contains(".")){
+            int tmp = Integer.parseInt(page.substring(0,page.indexOf(".")));
             cri = new Criteria(tmp, 10);
             responseHeaders.setContentType(MediaType.APPLICATION_JSON);
         }
@@ -51,14 +50,23 @@ public class ReplyController {
         log.info("getList............");
         log.info(cri);
 
-        return new ResponseEntity<>(service.getList(cri, bno), responseHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(service.getListPage(cri, bno), responseHeaders, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{rno}", produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ReplyVO> get(@PathVariable("rno")Long rno){
+    public ResponseEntity<ReplyVO> get(@PathVariable("rno")String rno){
         log.info("get: " + rno);
+        HttpHeaders responseHeaders = new HttpHeaders();
 
-        return new ResponseEntity<>(service.get(rno), HttpStatus.OK);
+        //.json이면 json으로 return하게 설정
+        if(rno.contains(".")){
+            rno = rno.substring(0, rno.indexOf("."));
+            responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+        }
+        else{
+            responseHeaders.setContentType(MediaType.APPLICATION_XML);
+        }
+        return new ResponseEntity<>(service.get(Long.parseLong(rno)), responseHeaders, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{rno}",produces = {MediaType.TEXT_PLAIN_VALUE})

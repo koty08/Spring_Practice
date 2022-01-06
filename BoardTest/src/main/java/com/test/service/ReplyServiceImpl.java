@@ -1,7 +1,9 @@
 package com.test.service;
 
 import com.test.domain.Criteria;
+import com.test.domain.ReplyPageDTO;
 import com.test.domain.ReplyVO;
+import com.test.mapper.BoardMapper;
 import com.test.mapper.ReplyMapper;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
@@ -10,47 +12,64 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Log4j
 @AllArgsConstructor
-public class ReplyServiceImpl implements ReplyService{
+public class ReplyServiceImpl implements ReplyService {
 
-    @Setter(onMethod_ = @Autowired)
-    private ReplyMapper mapper;
+  @Setter(onMethod_ = @Autowired)
+  private ReplyMapper mapper;
 
-    @Override
-    public int register(ReplyVO vo) {
-        log.info("register...." + vo);
+  @Setter(onMethod_ = @Autowired)
+  private BoardMapper boardMapper;
 
-        return mapper.insert(vo);
-    }
+  @Transactional
+  @Override
+  public int register(ReplyVO vo) {
+    log.info("register...." + vo);
 
-    @Override
-    public ReplyVO get(Long rno) {
-        log.info("get...." + rno);
+    boardMapper.updateReplyCnt(vo.getBno(), 1);
 
-        return mapper.read(rno);
-    }
+    return mapper.insert(vo);
+  }
 
-    @Override
-    public int modify(ReplyVO vo) {
-        log.info("modify...." + vo);
+  @Override
+  public ReplyVO get(Long rno) {
+    log.info("get...." + rno);
 
-        return mapper.update(vo);
-    }
+    return mapper.read(rno);
+  }
 
-    @Override
-    public int remove(Long rno) {
-        log.info("remove...." + rno);
+  @Override
+  public int modify(ReplyVO vo) {
+    log.info("modify...." + vo);
 
-        return mapper.delete(rno);
-    }
+    return mapper.update(vo);
+  }
 
-    @Override
-    public List<ReplyVO> getList(Criteria cri, Long bno) {
-        log.info("get Reply list of a board " + bno);;
+  @Transactional
+  @Override
+  public int remove(Long rno) {
+    log.info("remove...." + rno);
 
-        return mapper.getListWithPaging(cri, bno);
-    }
+    ReplyVO vo = mapper.read(rno);
+    boardMapper.updateReplyCnt(vo.getBno(), -1);
+
+    return mapper.delete(rno);
+  }
+
+  @Override
+  public List<ReplyVO> getList(Criteria cri, Long bno) {
+    log.info("get Reply list of a board " + bno);
+    ;
+
+    return mapper.getListWithPaging(cri, bno);
+  }
+
+  @Override
+  public ReplyPageDTO getListPage(Criteria cri, Long bno) {
+    return new ReplyPageDTO(mapper.getCountByBno(bno), mapper.getListWithPaging(cri, bno));
+  }
 }
